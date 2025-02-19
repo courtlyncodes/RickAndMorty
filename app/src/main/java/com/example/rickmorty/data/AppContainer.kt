@@ -1,5 +1,7 @@
 package com.example.rickmorty.data
 
+import android.content.Context
+import com.example.rickmorty.data.AppDatabase.Companion.getDatabase
 import com.example.rickmorty.network.ApiService
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -20,9 +22,11 @@ interface AppContainer {
  *
  * Variables are initialized lazily and the same instance is shared across the whole app.
  */
-class DefaultAppContainer : AppContainer {
+class DefaultAppContainer(private val context: Context) : AppContainer {
     private val baseUrl = "https://rickandmortyapi.com/api"
     private val logging = HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
+    private val database = getDatabase(context)
+    private val characterDao = database.characterDao()
 
     // OkHttp client with logging interceptor
     private val okHttpClient = OkHttpClient.Builder()
@@ -48,6 +52,6 @@ class DefaultAppContainer : AppContainer {
 
     // Repository implementation
     override val repository: RmRepository by lazy {
-        DefaultRmRepository(retrofitService)
+        DefaultRmRepository(retrofitService, characterDao)
     }
 }

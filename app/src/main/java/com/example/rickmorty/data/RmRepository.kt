@@ -2,6 +2,8 @@ package com.example.rickmorty.data
 
 import com.example.rickmorty.model.Character
 import com.example.rickmorty.network.ApiService
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 /** Retrieves a list of characters from the data source */
 interface RmRepository {
@@ -9,23 +11,28 @@ interface RmRepository {
 }
 
 /** Network implementation of repository that retrieves characters from underlying data source. */
-class DefaultRmRepository(private val rmApiService: ApiService) : RmRepository {
+class DefaultRmRepository(
+    private val rmApiService: ApiService,
+    private val characterDao: CharacterDao
+) : RmRepository {
     override suspend fun loadCharacters(): List<Character> {
-        return try {
-            val response = rmApiService.loadCharacters()
-            if (response.isSuccessful) {
-                val chars = response.body()?.results
-                // If the response is successful, but the body is null or empty, return an empty list
-                if (chars.isNullOrEmpty()) {
-                    emptyList()
-                } else {
-                    chars
+        return withContext(Dispatchers.IO) {
+            val cachedCharacters = characterDao.getAllCharacters()
+            (cachedCharacters.ifEmpty {
+                val response = rmApiService.loadCharacters()
+                val entities = response.body()!!.results.map {
+                    Character(
+                        id = it.id,
+                        name = it.name,
+                        status = it.status,
+                        species = it.species,
+                        gender = it.gender,
+                        image = it.image
+                    )
                 }
-            } else {
-                throw Exception("Error loading data: ${response.code()}")
-            }
-        } catch (e: Exception) {
-            throw Exception("Error: $e")
+                characterDao.insertAll(entities)
+                entities
+            })
         }
     }
 }
