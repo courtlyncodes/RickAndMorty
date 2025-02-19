@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">Rick &amp; Morty</string>
+    <string name="loading">Loading data...</string>
+    <string name="error">Error loading data.</string>
+    <string name="character_image">character image</string>
 </resources>
