@@ -23,7 +23,7 @@ interface AppContainer {
  * Variables are initialized lazily and the same instance is shared across the whole app.
  */
 class DefaultAppContainer(context: Context) : AppContainer {
-    private val baseUrl = "https://rickandmortyapi.com/api"
+    private val baseUrl = "https://rickandmortyapi.com/api/"
     private val logging = HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
     private val database = getDatabase(context)
     private val characterDao = database.characterDao()

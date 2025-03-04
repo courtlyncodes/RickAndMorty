@@ -78,6 +78,9 @@ dependencies {
     implementation(platform(libs.okhttp.bom))
     implementation(libs.logging.interceptor)
 
+    // Google Fonts
+    implementation(libs.androidx.ui.text.google.fonts)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

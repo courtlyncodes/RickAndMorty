@@ -4,13 +4,17 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.rickmorty.model.RmCharacter
+import com.example.rickmorty.ui.CharacterCard
 import com.example.rickmorty.ui.theme.RickMortyTheme
 
 class MainActivity : ComponentActivity() {
@@ -19,29 +23,40 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             RickMortyTheme {
-                Scaffold( modifier = Modifier.fillMaxSize() ) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
+                val char = RmCharacter(
+                    id = 1,
+                    name = "Rick Sanchez",
+                    status = "Alive",
+                    species = "Human",
+                    gender = "Male",
+                    image = R.drawable.img.toString() // If this is an image resource, it should be handled differently
+                )
+
+                val char2 = RmCharacter(
+                    id = 2,
+                    name = "Morty Smith",
+                    status = "Alive",
+                    species = "Human",
+                    gender = "Male",
+                    image = R.drawable.img.toString() // If this is an image resource, it should be handled differently
+                )
+                Column {
+                    CharacterCard(
+                        rmCharacter = char,
+                        icon = "https://placekitten.com/200/300",
+                        name = char.name,
+                        onCardClick = { TODO() },
+                        modifier = Modifier
+                    )
+                    CharacterCard(
+                        rmCharacter = char2,
+                        icon = "https://placekitten.com/200/300",
+                        name = char2.name,
+                        onCardClick = { TODO() },
+                        modifier = Modifier
                     )
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    RickMortyTheme {
-        Greeting("Android")
     }
 }
