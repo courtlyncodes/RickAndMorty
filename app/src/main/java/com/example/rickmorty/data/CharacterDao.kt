@@ -4,13 +4,13 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.example.rickmorty.model.Character
+import com.example.rickmorty.model.RmCharacter
 
 @Dao
 interface CharacterDao {
-    @Query("SELECT * FROM characters")
-    suspend fun getAllCharacters(): List<Character>
+    @Query("SELECT * FROM rm_characters")
+    suspend fun getAllCharacters(): List<RmCharacter>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(characters: List<Character>)
+    suspend fun insertAll(rmCharacters: List<RmCharacter>)
 }

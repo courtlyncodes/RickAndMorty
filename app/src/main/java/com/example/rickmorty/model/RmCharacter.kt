@@ -4,11 +4,11 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 data class QueryResponse (
-    val results: List<Character>
+    val results: List<RmCharacter>
 )
 
-@Entity(tableName = "characters")
-data class Character (
+@Entity(tableName = "rm_characters")
+data class RmCharacter (
     @PrimaryKey val id: Int,
     val name: String,
     val status: String,
