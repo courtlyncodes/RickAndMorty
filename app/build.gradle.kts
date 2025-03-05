@@ -62,6 +62,8 @@ dependencies {
     // Room
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
+
+    implementation(libs.core)
     ksp(libs.androidx.room.compiler)
 
     // Moshi
@@ -80,6 +82,9 @@ dependencies {
 
     // Google Fonts
     implementation(libs.androidx.ui.text.google.fonts)
+
+    // Palette
+    implementation(libs.androidx.palette.ktx)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
