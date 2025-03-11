@@ -15,6 +15,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.rickmorty.model.RmCharacter
 import com.example.rickmorty.ui.CharacterCard
+import com.example.rickmorty.ui.CharacterDetailCard
 import com.example.rickmorty.ui.ScreenContent
 import com.example.rickmorty.ui.theme.RickMortyTheme
 
@@ -24,7 +25,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             RickMortyTheme {
-                ScreenContent(onCardClick = {})
+              ScreenContent()
                 }
             }
         }

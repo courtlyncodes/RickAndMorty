@@ -1,12 +1,14 @@
 package com.example.rickmorty.ui
 
 import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,16 +23,21 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffold
+import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
+import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -45,16 +52,45 @@ import coil3.compose.AsyncImagePainter
 import coil3.toBitmap
 import com.example.rickmorty.R
 import com.example.rickmorty.model.RmCharacter
+import kotlinx.coroutines.launch
 
-//@OptIn(ExperimentalMaterial3AdaptiveApi::class)
-//@Composable
-//fun ListDetailPane(modifier: Modifier = Modifier) {
-//    val navigator = rememberListDetailPaneScaffoldNavigator<Nothing>()
-//
-//}
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+@Composable
+fun ListDetailPane(
+    rmCharacters: List<RmCharacter>, modifier: Modifier = Modifier)
+{
+    val navigator = rememberListDetailPaneScaffoldNavigator<RmCharacter>()
+    val scope = rememberCoroutineScope()
+
+    BackHandler(navigator.canNavigateBack()) {
+        scope.launch {  navigator.navigateBack() }
+
+    }
+
+    ListDetailPaneScaffold(
+        directive = navigator.scaffoldDirective,
+        value = navigator.scaffoldValue,
+        listPane = {
+            CharacterList(rmCharacters, onCardClick = { character ->
+                scope.launch {
+                    navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, character)
+                }
+            })
+        },
+        detailPane = {
+            val character = navigator.currentDestination?.contentKey
+            character?.let {
+                CharacterDetailCard(rmCharacter = it)
+            }
+        }
+    )
+}
 
 @Composable
-fun ScreenContent(viewModel: ViewModel = viewModel(factory = ViewModel.Factory), onCardClick: (RmCharacter) -> Unit) {
+fun ScreenContent(
+    viewModel: ViewModel = viewModel(factory = ViewModel.Factory)
+) {
     when (val uiState = viewModel.uiState) {
         is UiState.Loading -> {
             LoadingScreen()
@@ -65,56 +101,87 @@ fun ScreenContent(viewModel: ViewModel = viewModel(factory = ViewModel.Factory),
         }
 
         is UiState.Success -> {
-            CharacterList(uiState.rmCharacters, onCardClick)
+            ListDetailPane(uiState.rmCharacters)
         }
     }
 }
 
 @Composable
 fun CharacterDetailCard(
-    image: String,
     rmCharacter: RmCharacter,
-    image2: Painter,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
+    var backgroundColor by remember { mutableStateOf(Color.White) }
+    Box(
+        modifier
             .fillMaxSize()
-            .padding(top = 160.dp)
+            .background(backgroundColor)
     ) {
-        AsyncImage(
-            image,
-            stringResource(R.string.character_image),
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .width(200.dp)
-                .height(200.dp)
-                .clip(CircleShape)
-        )
-        Text(
-            rmCharacter.name,
-            fontSize = 32.sp,
-            color = Color.Black,
-            textAlign = TextAlign.Center,
-            fontFamily = MaterialTheme.typography.displayLarge.fontFamily,
-            modifier = modifier.padding(20.dp)
-        )
-        Text(
-            "${rmCharacter.name} is ${rmCharacter.status.lowercase()}!",
-            modifier.padding(16.dp),
-            fontSize = 24.sp,
-            fontFamily = MaterialTheme.typography.displayMedium.fontFamily,
-            textAlign = TextAlign.Center
-        )
-        Text(
-            "They are of the ${rmCharacter.species.lowercase()} species, and they are a ${rmCharacter.gender.lowercase()}.",
-            modifier.padding(16.dp),
-            fontSize = 20.sp,
-            fontFamily = MaterialTheme.typography.displaySmall.fontFamily,
-            textAlign = TextAlign.Center
-        )
+        Column(
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = modifier
+                .fillMaxSize()
+                .padding(top = 160.dp)
+        ) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = modifier
+                    .width(210.dp)
+                    .height(210.dp)
+                    .clip(CircleShape)
+                    .border(6.dp, Color.White, CircleShape)
+            ) {
+                AsyncImage(
+                    rmCharacter.image,
+                    stringResource(R.string.character_image),
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .width(200.dp)
+                        .height(200.dp)
+                        .clip(CircleShape),
+                    onState = { state ->
+                        if (state is AsyncImagePainter.State.Success) {
+                            // Convert the drawable to a mutable bitmap to extract palette
+                            val drawable = state.result.image
+                            val bitmap = (drawable as? BitmapDrawable)?.bitmap
+                                ?: (drawable.toBitmap() // Fallback to toBitmap() if not a BitmapDrawable)
+                                    .copy(Bitmap.Config.ARGB_8888, true))
+
+                            // Generate the palette from the bitmap
+                            val palette = Palette.from(bitmap).generate()
+
+                            // Set the background color from the dominant swatch (if available)
+                            palette.dominantSwatch?.let { swatch ->
+                                backgroundColor = Color(swatch.rgb)
+                            }
+                        }
+                    }
+                )
+            }
+            Text(
+                rmCharacter.name,
+                fontSize = 32.sp,
+                color = Color.Black,
+                textAlign = TextAlign.Center,
+                fontFamily = MaterialTheme.typography.displayLarge.fontFamily,
+                modifier = modifier.padding(20.dp)
+            )
+            Text(
+                "${rmCharacter.name} is ${rmCharacter.status.lowercase()}!",
+                modifier.padding(16.dp),
+                fontSize = 24.sp,
+                fontFamily = MaterialTheme.typography.displayMedium.fontFamily,
+                textAlign = TextAlign.Center
+            )
+            Text(
+                "They are of the ${rmCharacter.species.lowercase()} species, and they are a ${rmCharacter.gender.lowercase()}.",
+                modifier.padding(16.dp),
+                fontSize = 20.sp,
+                fontFamily = MaterialTheme.typography.displaySmall.fontFamily,
+                textAlign = TextAlign.Center
+            )
+        }
     }
 }
 
@@ -128,6 +195,8 @@ fun CharacterList(
         items(rmCharacters.size) {
             CharacterCard(
                 rmCharacters[it],
+                rmCharacters[it].image,
+                rmCharacters[it].name,
                 onCardClick,
                 modifier
             )
@@ -138,11 +207,11 @@ fun CharacterList(
 @Composable
 fun CharacterCard(
     rmCharacter: RmCharacter,
+    image: String,
+    name: String,
     onCardClick: (RmCharacter) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var backgroundColor by remember { mutableStateOf(Color.White) }
-
     OutlinedCard(
         shape = CardDefaults.outlinedShape,
         elevation = CardDefaults.outlinedCardElevation(
@@ -150,7 +219,7 @@ fun CharacterCard(
         ),
         border = BorderStroke(1.dp, Color.Gray),
         colors = CardDefaults.cardColors(
-            containerColor = backgroundColor
+            containerColor = Color.LightGray
         ),
         modifier = modifier
             .clickable { onCardClick(rmCharacter) }
@@ -165,33 +234,16 @@ fun CharacterCard(
 
         ) {
             AsyncImage(
-                rmCharacter.image,
+                image,
                 stringResource(R.string.character_image),
                 contentScale = ContentScale.Crop,
                 modifier = modifier.clip(
                     CircleShape
-                ),
-                onState = { state ->
-                    if (state is AsyncImagePainter.State.Success) {
-                        // Convert the drawable to a mutable bitmap to extract palette
-                        val drawable = state.result.image
-                        val bitmap = (drawable as? BitmapDrawable)?.bitmap
-                            ?: (drawable.toBitmap() // Fallback to toBitmap() if not a BitmapDrawable)
-                                .copy(Bitmap.Config.ARGB_8888, true))
-
-                        // Generate the palette from the bitmap
-                        val palette = Palette.from(bitmap).generate()
-
-                        // Set the background color from the dominant swatch (if available)
-                        palette.dominantSwatch?.let { swatch ->
-                            backgroundColor = Color(swatch.rgb)
-                        }
-                    }
-                }
+                )
             )
 
             Text(
-                rmCharacter.name,
+                name,
                 fontSize = 24.sp,
                 color = Color.Black,
                 textAlign = TextAlign.Center,
@@ -302,16 +354,5 @@ fun CharacterListPreview() {
         gender = "Male",
         image = painterResource(R.drawable.img).toString()// If this is an image resource, it should be handled differently
     )
-}
 
-fun Drawable.toBitmap(): Bitmap {
-    val bitmap = Bitmap.createBitmap(
-        this.intrinsicWidth.takeIf { it > 0 } ?: 1,
-        this.intrinsicHeight.takeIf { it > 0 } ?: 1,
-        Bitmap.Config.ARGB_8888
-    )
-    val canvas = Canvas(bitmap)
-    this.setBounds(0, 0, canvas.width, canvas.height)
-    this.draw(canvas)
-    return bitmap
 }
