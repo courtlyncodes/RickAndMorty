@@ -17,12 +17,19 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffold
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
@@ -37,10 +44,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.drawscope.DrawStyle
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -185,21 +200,54 @@ fun CharacterDetailCard(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CharacterList(
     rmCharacters: List<RmCharacter>,
     onCardClick: (RmCharacter) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    LazyColumn() {
-        items(rmCharacters.size) {
-            CharacterCard(
-                rmCharacters[it],
-                rmCharacters[it].image,
-                rmCharacters[it].name,
-                onCardClick,
-                modifier
-            )
+    val textMeasurer = rememberTextMeasurer()
+    val text = "Rick & Morty Finder"
+    Column {
+        CenterAlignedTopAppBar(
+            title = {
+                Text(
+                    text = text,
+                    fontFamily = MaterialTheme.typography.titleLarge.fontFamily,
+                    color = Color(0xFF83d2e4),
+                    modifier = modifier.drawBehind {
+                        val textLayoutResult = textMeasurer.measure(text)
+                        val bounds = textLayoutResult.size
+
+                        drawIntoCanvas { canvas ->
+                            val paint = Paint().apply {
+                                color = Color.Black
+                                strokeWidth = 2f
+                            }
+                            canvas.drawRect(
+                                left = 0f,
+                                top = 0f,
+                                right = bounds.width.toFloat(),
+                                bottom = bounds.height.toFloat(),
+                                paint
+                            )
+                        }
+                    }
+                    )
+
+            }
+        )
+        LazyVerticalGrid(columns = GridCells.Fixed(2)) {
+            items(rmCharacters.size) {
+                CharacterCard(
+                    rmCharacters[it],
+                    rmCharacters[it].image,
+                    rmCharacters[it].name,
+                    onCardClick,
+                    modifier
+                )
+            }
         }
     }
 }
@@ -219,16 +267,17 @@ fun CharacterCard(
         ),
         border = BorderStroke(1.dp, Color.Gray),
         colors = CardDefaults.cardColors(
-            containerColor = Color.LightGray
+            containerColor = Color(0xFFEAEAEA)
         ),
         modifier = modifier
             .clickable { onCardClick(rmCharacter) }
             .padding(4.dp)
-            .clip(RoundedCornerShape(50.dp))
+            .height(186.dp)
+            .clip(RoundedCornerShape(10.dp))
     ) {
-        Row(
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically,
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
             modifier = modifier
                 .fillMaxWidth()
 
@@ -237,18 +286,16 @@ fun CharacterCard(
                 image,
                 stringResource(R.string.character_image),
                 contentScale = ContentScale.Crop,
-                modifier = modifier.clip(
-                    CircleShape
-                )
+                modifier = modifier.padding(16.dp).clip(RoundedCornerShape(10.dp))
             )
 
             Text(
                 name,
-                fontSize = 24.sp,
+                fontSize = 16.sp,
                 color = Color.Black,
                 textAlign = TextAlign.Center,
                 fontFamily = MaterialTheme.typography.displayMedium.fontFamily,
-                modifier = modifier.padding(16.dp)
+                modifier = modifier
             )
         }
     }

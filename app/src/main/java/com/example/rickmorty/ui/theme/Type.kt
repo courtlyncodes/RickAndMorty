@@ -20,6 +20,11 @@ val robotoMonoFontFamily = FontFamily(
     Font(googleFont = robotoMonoFont, fontProvider = provider)
 )
 
+val creepsterFont = GoogleFont(name = "Creepster")
+val creepsterFontFamily = FontFamily (
+    Font(googleFont = creepsterFont, fontProvider = provider)
+)
+
 val Typography = Typography(
     displayLarge = TextStyle(
         fontFamily = robotoMonoFontFamily,
@@ -39,4 +44,9 @@ val Typography = Typography(
         fontSize = 28.sp,
         lineHeight = 36.sp,
     ),
+    titleLarge = TextStyle(
+        fontFamily = creepsterFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 36.sp
+    )
 )
