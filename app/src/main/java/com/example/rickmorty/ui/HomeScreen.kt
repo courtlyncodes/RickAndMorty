@@ -10,26 +10,21 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffold
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
@@ -39,23 +34,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Paint
-import androidx.compose.ui.graphics.drawscope.DrawStyle
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -126,11 +112,10 @@ fun CharacterDetailCard(
     rmCharacter: RmCharacter,
     modifier: Modifier = Modifier
 ) {
-    var backgroundColor by remember { mutableStateOf(Color.White) }
+    var prominentColor by remember { mutableStateOf(Color.White) }
     Box(
         modifier
             .fillMaxSize()
-            .background(backgroundColor)
     ) {
         Column(
             verticalArrangement = Arrangement.Top,
@@ -142,37 +127,47 @@ fun CharacterDetailCard(
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = modifier
-                    .width(210.dp)
-                    .height(210.dp)
+                    .width(220.dp)
+                    .height(220.dp)
                     .clip(CircleShape)
-                    .border(6.dp, Color.White, CircleShape)
+                    .border(10.dp, prominentColor, CircleShape)
             ) {
-                AsyncImage(
-                    rmCharacter.image,
-                    stringResource(R.string.character_image),
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .width(200.dp)
-                        .height(200.dp)
-                        .clip(CircleShape),
-                    onState = { state ->
-                        if (state is AsyncImagePainter.State.Success) {
-                            // Convert the drawable to a mutable bitmap to extract palette
-                            val drawable = state.result.image
-                            val bitmap = (drawable as? BitmapDrawable)?.bitmap
-                                ?: (drawable.toBitmap() // Fallback to toBitmap() if not a BitmapDrawable)
-                                    .copy(Bitmap.Config.ARGB_8888, true))
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = modifier
+                        .width(210.dp)
+                        .height(210.dp)
+                        .clip(CircleShape)
+                        .border(10.dp, Color.White, CircleShape)
+                )
+                {
+                    AsyncImage(
+                        rmCharacter.image,
+                        stringResource(R.string.character_image),
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .width(200.dp)
+                            .height(200.dp)
+                            .clip(CircleShape),
+                        onState = { state ->
+                            if (state is AsyncImagePainter.State.Success) {
+                                // Convert the drawable to a mutable bitmap to extract palette
+                                val drawable = state.result.image
+                                val bitmap = (drawable as? BitmapDrawable)?.bitmap
+                                    ?: (drawable.toBitmap() // Fallback to toBitmap() if not a BitmapDrawable)
+                                        .copy(Bitmap.Config.ARGB_8888, true))
 
-                            // Generate the palette from the bitmap
-                            val palette = Palette.from(bitmap).generate()
+                                // Generate the palette from the bitmap
+                                val palette = Palette.from(bitmap).generate()
 
-                            // Set the background color from the dominant swatch (if available)
-                            palette.dominantSwatch?.let { swatch ->
-                                backgroundColor = Color(swatch.rgb)
+                                // Set the background color from the dominant swatch (if available)
+                                palette.dominantSwatch?.let { swatch ->
+                                    prominentColor = Color(swatch.rgb)
+                                }
                             }
                         }
-                    }
-                )
+                    )
+                }
             }
             Text(
                 rmCharacter.name,
@@ -207,35 +202,18 @@ fun CharacterList(
     onCardClick: (RmCharacter) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val textMeasurer = rememberTextMeasurer()
-    val text = "Rick & Morty Finder"
     Column {
         CenterAlignedTopAppBar(
             title = {
-                Text(
-                    text = text,
-                    fontFamily = MaterialTheme.typography.titleLarge.fontFamily,
-                    color = Color(0xFF83d2e4),
-                    modifier = modifier.drawBehind {
-                        val textLayoutResult = textMeasurer.measure(text)
-                        val bounds = textLayoutResult.size
-
-                        drawIntoCanvas { canvas ->
-                            val paint = Paint().apply {
-                                color = Color.Black
-                                strokeWidth = 2f
-                            }
-                            canvas.drawRect(
-                                left = 0f,
-                                top = 0f,
-                                right = bounds.width.toFloat(),
-                                bottom = bounds.height.toFloat(),
-                                paint
-                            )
-                        }
-                    }
+                Box {
+                    Text(
+                        text = "Rick & Morty Finder",
+                        fontFamily = MaterialTheme.typography.titleLarge.fontFamily,
+                        color = Color(0xFF83d2e4),
+                        modifier = modifier
                     )
 
+                }
             }
         )
         LazyVerticalGrid(columns = GridCells.Fixed(2)) {
