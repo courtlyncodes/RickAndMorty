@@ -10,6 +10,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -43,6 +45,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -178,14 +181,18 @@ fun CharacterDetailCard(
                 modifier = modifier.padding(20.dp)
             )
             Text(
-                "${rmCharacter.name} is ${rmCharacter.status.lowercase()}!",
+                stringResource(R.string.chardes, rmCharacter.name, rmCharacter.status.lowercase()),
                 modifier.padding(16.dp),
                 fontSize = 24.sp,
                 fontFamily = MaterialTheme.typography.displayMedium.fontFamily,
                 textAlign = TextAlign.Center
             )
             Text(
-                "They are of the ${rmCharacter.species.lowercase()} species, and they are a ${rmCharacter.gender.lowercase()}.",
+                stringResource(
+                    R.string.chardes2,
+                    rmCharacter.species.lowercase(),
+                    rmCharacter.gender.lowercase()
+                ),
                 modifier.padding(16.dp),
                 fontSize = 20.sp,
                 fontFamily = MaterialTheme.typography.displaySmall.fontFamily,
@@ -216,7 +223,10 @@ fun CharacterList(
                 }
             }
         )
-        LazyVerticalGrid(columns = GridCells.Fixed(2)) {
+        LazyVerticalGrid(
+            columns = GridCells.FixedSize(210.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
             items(rmCharacters.size) {
                 CharacterCard(
                     rmCharacters[it],
@@ -250,7 +260,7 @@ fun CharacterCard(
         modifier = modifier
             .clickable { onCardClick(rmCharacter) }
             .padding(4.dp)
-            .height(186.dp)
+            .aspectRatio(.8f)
             .clip(RoundedCornerShape(10.dp))
     ) {
         Column(
@@ -263,17 +273,21 @@ fun CharacterCard(
             AsyncImage(
                 image,
                 stringResource(R.string.character_image),
-                contentScale = ContentScale.Crop,
-                modifier = modifier.padding(16.dp).clip(RoundedCornerShape(10.dp))
+//                contentScale = ContentScale.Crop,
+                modifier = modifier
+                    .padding(top = 16.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .aspectRatio(7 / 6f)
             )
 
             Text(
                 name,
                 fontSize = 16.sp,
+                modifier = modifier.padding(4.dp),
                 color = Color.Black,
                 textAlign = TextAlign.Center,
                 fontFamily = MaterialTheme.typography.displayMedium.fontFamily,
-                modifier = modifier
+                maxLines = 2
             )
         }
     }

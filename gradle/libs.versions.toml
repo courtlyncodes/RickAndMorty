@@ -1,5 +1,4 @@
 [versions]
-adaptive = "1.0.0"
 adaptiveVersion = "1.1.0-beta02"
 agp = "8.8.1"
 coilCompose = "3.1.0"
@@ -20,18 +19,15 @@ ksp = "2.0.21-1.0.27"
 uiTextGoogleFonts = "1.7.8"
 paletteKtx = "1.0.0"
 core = "1.48.0"
+parcelize = "2.1.20"
 
 [libraries]
 
 adaptive = { module = "androidx.compose.material3.adaptive:adaptive", version.ref = "adaptiveVersion" }
 adaptive-layout = { module = "androidx.compose.material3.adaptive:adaptive-layout", version.ref = "adaptiveVersion" }
 adaptive-navigation = { module = "androidx.compose.material3.adaptive:adaptive-navigation", version.ref = "adaptiveVersion" }
-androidx-adaptive = { module = "androidx.compose.material3:adaptive", version.ref = "adaptive" }
-androidx-adaptive-layout = { module = "androidx.compose.material3:adaptive-layout", version.ref = "adaptive" }
-androidx-adaptive-navigation = { module = "androidx.compose.material3:adaptive-navigation", version.ref = "adaptive" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleRuntimeKtx" }
-androidx-lifecycle-viewmodel-compose-android = { module = "androidx.lifecycle:lifecycle-viewmodel-compose-android", version.ref = "lifecycleRuntimeKtx" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomRuntime" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
