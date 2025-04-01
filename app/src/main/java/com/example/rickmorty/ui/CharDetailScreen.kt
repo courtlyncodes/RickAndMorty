@@ -40,90 +40,95 @@ fun CharacterDetailCard(
     modifier: Modifier = Modifier
 ) {
     var prominentColor by remember { mutableStateOf(Color.White) }
-    Box(
-        modifier
-            .fillMaxSize()
-    ) {
-        Column(
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = modifier
+
+        Box(
+            modifier
                 .fillMaxSize()
-                .padding(top = 160.dp)
         ) {
-            Box(
-                contentAlignment = Alignment.Center,
+            Column(
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = modifier
-                    .width(220.dp)
-                    .height(220.dp)
-                    .clip(CircleShape)
-                    .border(10.dp, prominentColor, CircleShape)
+                    .fillMaxSize()
+                    .padding(top = 160.dp)
             ) {
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = modifier
-                        .width(210.dp)
-                        .height(210.dp)
+                        .width(220.dp)
+                        .height(220.dp)
                         .clip(CircleShape)
-                        .border(10.dp, Color.White, CircleShape)
-                )
-                {
-                    AsyncImage(
-                        rmCharacter.image,
-                        stringResource(R.string.character_image),
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .width(200.dp)
-                            .height(200.dp)
-                            .clip(CircleShape),
-                        onState = { state ->
-                            if (state is AsyncImagePainter.State.Success) {
-                                // Convert the drawable to a mutable bitmap to extract palette
-                                val drawable = state.result.image
-                                val bitmap = (drawable as? BitmapDrawable)?.bitmap
-                                    ?: (drawable.toBitmap() // Fallback to toBitmap() if not a BitmapDrawable)
-                                        .copy(Bitmap.Config.ARGB_8888, true))
+                        .border(10.dp, prominentColor, CircleShape)
+                ) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = modifier
+                            .width(210.dp)
+                            .height(210.dp)
+                            .clip(CircleShape)
+                            .border(10.dp, Color.White, CircleShape)
+                    )
+                    {
+                        AsyncImage(
+                            rmCharacter.image,
+                            stringResource(R.string.character_image),
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .width(200.dp)
+                                .height(200.dp)
+                                .clip(CircleShape),
+                            onState = { state ->
+                                if (state is AsyncImagePainter.State.Success) {
+                                    // Convert the drawable to a mutable bitmap to extract palette
+                                    val drawable = state.result.image
+                                    val bitmap = (drawable as? BitmapDrawable)?.bitmap
+                                        ?: (drawable.toBitmap() // Fallback to toBitmap() if not a BitmapDrawable)
+                                            .copy(Bitmap.Config.ARGB_8888, true))
 
-                                // Generate the palette from the bitmap
-                                val palette = Palette.from(bitmap).generate()
+                                    // Generate the palette from the bitmap
+                                    val palette = Palette.from(bitmap).generate()
 
-                                // Set the background color from the dominant swatch (if available)
-                                palette.dominantSwatch?.let { swatch ->
-                                    prominentColor = Color(swatch.rgb)
+                                    // Set the background color from the dominant swatch (if available)
+                                    palette.dominantSwatch?.let { swatch ->
+                                        prominentColor = Color(swatch.rgb)
+                                    }
                                 }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
+                Text(
+                    rmCharacter.name,
+                    fontSize = 32.sp,
+                    color = Color.Black,
+                    textAlign = TextAlign.Center,
+                    lineHeight = 44.sp,
+                    fontFamily = MaterialTheme.typography.displayLarge.fontFamily,
+                    modifier = modifier.padding(20.dp)
+                )
+                Text(
+                    stringResource(
+                        R.string.chardes,
+                        rmCharacter.name,
+                        rmCharacter.status.lowercase()
+                    ),
+                    modifier.padding(16.dp),
+                    fontSize = 24.sp,
+                    lineHeight = 32.sp,
+                    fontFamily = MaterialTheme.typography.displayMedium.fontFamily,
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    stringResource(
+                        R.string.chardes2,
+                        rmCharacter.species.lowercase(),
+                        rmCharacter.gender.lowercase()
+                    ),
+                    modifier.padding(16.dp),
+                    fontSize = 20.sp,
+                    fontFamily = MaterialTheme.typography.displaySmall.fontFamily,
+                    textAlign = TextAlign.Center
+                )
             }
-            Text(
-                rmCharacter.name,
-                fontSize = 32.sp,
-                color = Color.Black,
-                textAlign = TextAlign.Center,
-                lineHeight = 44.sp,
-                fontFamily = MaterialTheme.typography.displayLarge.fontFamily,
-                modifier = modifier.padding(20.dp)
-            )
-            Text(
-                stringResource(R.string.chardes, rmCharacter.name, rmCharacter.status.lowercase()),
-                modifier.padding(16.dp),
-                fontSize = 24.sp,
-                lineHeight = 32.sp,
-                fontFamily = MaterialTheme.typography.displayMedium.fontFamily,
-                textAlign = TextAlign.Center
-            )
-            Text(
-                stringResource(
-                    R.string.chardes2,
-                    rmCharacter.species.lowercase(),
-                    rmCharacter.gender.lowercase()
-                ),
-                modifier.padding(16.dp),
-                fontSize = 20.sp,
-                fontFamily = MaterialTheme.typography.displaySmall.fontFamily,
-                textAlign = TextAlign.Center
-            )
         }
     }
-}

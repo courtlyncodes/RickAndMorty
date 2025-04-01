@@ -7,4 +7,5 @@
     <string name="chardes">%1$s\'s status is %2$s!</string>
     <string name="rick_morty_finder"><![CDATA[Rick & Morty Finder]]></string>
     <string name="search">Search</string>
+    <string name="navigate_back">Navigate back</string>
 </resources>
