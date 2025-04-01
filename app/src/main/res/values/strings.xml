@@ -6,4 +6,5 @@
     <string name="chardes2">They are of the %1$s species, and they are a %2$s.</string>
     <string name="chardes">%1$s\'s status is %2$s!</string>
     <string name="rick_morty_finder"><![CDATA[Rick & Morty Finder]]></string>
+    <string name="search">Search</string>
 </resources>

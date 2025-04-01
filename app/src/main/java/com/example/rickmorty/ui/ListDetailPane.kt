@@ -20,8 +20,6 @@ import kotlinx.coroutines.launch
 fun ScreenContent(
     viewModel: ViewModel = viewModel(factory = ViewModel.Factory)
 ) {
-    var text by remember { mutableStateOf("") }
-
     when (val uiState = viewModel.uiState) {
         is UiState.Loading -> {
             LoadingScreen()
@@ -62,10 +60,7 @@ fun ListDetailPane(
                 scope.launch {
                     navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, character)
                 }
-            },
-                toDetailPage = { character ->
-                    scope.launch { navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, character)}
-                })
+            })
         },
         detailPane = {
             val character = navigator.currentDestination?.contentKey

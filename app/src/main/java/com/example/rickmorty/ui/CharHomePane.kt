@@ -65,11 +65,11 @@ fun CharacterList(
     rmCharacters: List<RmCharacter>,
     onCharSearch: (String) -> Unit,
     onCardClick: (RmCharacter) -> Unit,
-    toDetailPage: (RmCharacter) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var text by rememberSaveable { mutableStateOf("") }
     var expanded by rememberSaveable { mutableStateOf(false) }
+
     Column {
         CenterAlignedTopAppBar(
             title = {
@@ -84,7 +84,12 @@ fun CharacterList(
                 }
             }
         )
-        Box(Modifier.fillMaxWidth().semantics {   isTraversalGroup = true }) {
+        Box(
+            modifier
+                .fillMaxWidth()
+                .semantics { isTraversalGroup = true }
+                .padding(bottom = 16.dp)
+        ) {
             SearchBar(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
@@ -101,47 +106,19 @@ fun CharacterList(
                         },
                         expanded = expanded,
                         onExpandedChange = { expanded = it },
-                        placeholder = { Text("Search") },
+                        placeholder = { Text(stringResource(R.string.search)) },
                         leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                        trailingIcon = { Icon(Icons.Default.MoreVert, contentDescription = null) },
                     )
                 },
-                expanded = expanded,
-                onExpandedChange = { expanded = it },
+                expanded = false,
+                onExpandedChange = { expanded = false },
             ) {
-                if (text.isNotEmpty()) {
-                    Column(Modifier.verticalScroll(rememberScrollState())) {
-                        rmCharacters.forEach { char ->
-                            ListItem(
-                                headlineContent = { Text(char.name) },
-                                supportingContent = {
-                                    AsyncImage(
-                                        char.image,
-                                        stringResource(R.string.character_image)
-                                    )
-                                },
-                                leadingContent = {
-                                    Icon(
-                                        Icons.Filled.Star,
-                                        contentDescription = null
-                                    )
-                                },
-                                colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                                modifier = Modifier.clickable {
-                                    toDetailPage(char)
-                                    expanded = false
-                                }
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 4.dp)
-                            )
-                        }
-                    }
-                }
             }
         }
         LazyVerticalGrid(
             columns = GridCells.FixedSize(210.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            modifier = modifier.padding(bottom = 32.dp)
         ) {
             items(rmCharacters.size) {
                 CharacterCard(
@@ -153,6 +130,7 @@ fun CharacterList(
                 )
             }
         }
+
     }
 }
 

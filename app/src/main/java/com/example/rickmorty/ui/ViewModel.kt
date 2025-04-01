@@ -44,7 +44,6 @@ class ViewModel(private val repository: RmRepository) : ViewModel() {
         }
     }
 
-
     fun searchChars(name: String) {
         viewModelScope.launch {
             val filteredChars = _chars.filter { it.name.contains(name, ignoreCase = true) }
