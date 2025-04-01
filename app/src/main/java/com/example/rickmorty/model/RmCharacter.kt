@@ -9,7 +9,6 @@ data class QueryResponse (
     val results: List<RmCharacter>
 )
 
-@Parcelize
 @Entity(tableName = "rm_characters")
 data class RmCharacter (
     @PrimaryKey val id: Int,
@@ -18,4 +17,4 @@ data class RmCharacter (
     val species: String,
     val gender: String,
     val image: String,
-): Parcelable
+)
