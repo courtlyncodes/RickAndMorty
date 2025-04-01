@@ -102,6 +102,7 @@ fun CharacterList(
             horizontalArrangement = Arrangement.SpaceAround,
             modifier = modifier.fillMaxWidth().padding(bottom = 16.dp)
         ) {
+
             ElevatedButton(onClick = { }) {
                 Text("Gender")
             }
