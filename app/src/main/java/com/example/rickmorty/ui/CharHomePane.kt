@@ -20,6 +20,8 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -31,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -47,6 +50,7 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.example.rickmorty.R
 import com.example.rickmorty.model.RmCharacter
+import kotlin.math.exp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -96,25 +100,7 @@ fun CharacterList(
             }
         }
 
-
-
-        Row(
-            horizontalArrangement = Arrangement.SpaceAround,
-            modifier = modifier.fillMaxWidth().padding(bottom = 16.dp)
-        ) {
-
-            ElevatedButton(onClick = { }) {
-                Text("Gender")
-            }
-            ElevatedButton(onClick = { }) {
-                Text("Species")
-            }
-            ElevatedButton(onClick = { }) {
-                Text("Status")
-            }
-        }
-
-
+        FilterMenu()
 
         LazyVerticalGrid(
             columns = GridCells.FixedSize(210.dp),
@@ -134,7 +120,60 @@ fun CharacterList(
     }
 }
 
+@Composable
+fun FilterMenu(onFilterSelected: (String, String) -> Unit) {
+    val filters = listOf(
+        FilterData("Gender", listOf("Male", "Female")),
+        FilterData("Species", listOf("Human", "Alien", "Robot", "Other")),
+        FilterData("Status", listOf("Alive", "Dead", "Unknown"))
+    )
+    Row {
+        filters.forEach { filter ->
+            var expanded by remember { mutableStateOf(false) }
+            FilterButton(
+                filter.title,
+                filter.subOptions,
+                expanded = expanded,
+                onExpandChange = { expanded = it },
+                onOptionSelected = { option ->
+                    onFilterSelected(filter.title, option)
+                },
+            )
 
+        }
+    }
+}
+
+@Composable
+fun FilterButton(
+    title: String,
+    subOptions: List<String>,
+    expanded: Boolean,
+    onExpandChange: (Boolean) -> Unit,
+    onOptionSelected: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box {
+        ElevatedButton(onClick = { onExpandChange(!expanded) }) {
+            Text(title)
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { onExpandChange(false) }
+        ) {
+            subOptions.forEach { subOption ->
+                DropdownMenuItem(
+                    text = { Text(subOption) },
+                    onClick = {
+                        onOptionSelected(subOption)
+                        onExpandChange(false)
+                    }
+                )
+            }
+        }
+
+    }
+}
 
 @Composable
 fun CharacterCard(
@@ -237,3 +276,8 @@ fun ErrorScreen(modifier: Modifier = Modifier) {
         )
     }
 }
+
+data class FilterData(
+    val title: String,
+    val subOptions: List<String>
+)
