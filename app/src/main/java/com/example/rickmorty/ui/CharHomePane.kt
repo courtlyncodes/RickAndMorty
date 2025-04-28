@@ -100,7 +100,7 @@ fun CharacterList(
             }
         }
 
-        FilterMenu()
+//        FilterMenu()
 
         LazyVerticalGrid(
             columns = GridCells.FixedSize(210.dp),

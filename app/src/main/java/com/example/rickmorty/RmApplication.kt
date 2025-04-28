@@ -3,7 +3,9 @@ package com.example.rickmorty
 import android.app.Application
 import com.example.rickmorty.data.AppContainer
 import com.example.rickmorty.data.DefaultAppContainer
+import dagger.hilt.android.HiltAndroidApp
 
+@HiltAndroidApp
 class RmApplication: Application() {
     // App container instance used by the rest of the classes to obtain dependencies
     lateinit var container: AppContainer
